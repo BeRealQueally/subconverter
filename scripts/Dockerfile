@@ -48,17 +48,21 @@ RUN set -xe && \
 FROM alpine:3.16
 LABEL maintainer="tindy.it@gmail.com"
 
-RUN apk add --no-cache --virtual subconverter-deps pcre2 libcurl yaml-cpp
+RUN apk add --no-cache --virtual subconverter-deps pcre2 libcurl yaml-cpp git busybox-cron python3 py3-pip
 
 COPY --from=builder /subconverter/subconverter /usr/bin/
 COPY --from=builder /subconverter/base /base/
+COPY --from=builder /subconverter/scripts/rules_config.conf /scripts/rules_config.conf
+COPY --from=builder /subconverter/scripts/update_rules.py /scripts/update_rules.py
 
 ENV TZ=Africa/Abidjan
+RUN sed -i '/\[ACL4SSR_config\]/,/^\[.*\]$/d' /scripts/rules_config.conf
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 RUN echo $TZ > /etc/timezone
+RUN python3 -m ensurepip && python3 -m pip install gitpython
 
 # set entry
 WORKDIR /base
-CMD subconverter
+CMD crond -b && subconverter
 
 EXPOSE 25500/tcp
