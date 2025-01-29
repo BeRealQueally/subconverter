@@ -48,7 +48,7 @@ RUN set -xe && \
 FROM alpine:3.16
 LABEL maintainer="tindy.it@gmail.com"
 
-RUN apk add --no-cache --virtual subconverter-deps pcre2 libcurl yaml-cpp git busybox-cron python3 py3-pip
+RUN apk add --no-cache --virtual subconverter-deps pcre2 libcurl yaml-cpp git dcron python3 py3-pip
 
 COPY --from=builder /subconverter/subconverter /usr/bin/
 COPY --from=builder /subconverter/base /base/
