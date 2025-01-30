@@ -71,6 +71,6 @@ RUN echo "#!/bin/sh" > /etc/periodic/daily/update_rules.sh && \
 
 # set entry
 WORKDIR /base
-CMD crond -L /var/log/cron.log && tail -f /var/log/cron.log && subconverter
+CMD crond -L /var/log/cron.log && tail -f /var/log/cron.log & exec subconverter
 
 EXPOSE 25500/tcp
