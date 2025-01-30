@@ -61,7 +61,7 @@ RUN echo $TZ > /etc/timezone
 
 RUN python3 -m ensurepip && python3 -m pip install gitpython
 
-RUN sed -i '/^\[ACL4SSR_config\]$/,/^\[/ { /^\[/!d }' scripts/rules_config.conf
+RUN sed -i '/^\[ACL4SSR_config\]$/,/^\[/ { /^\[ACL4SSR_config\]$/d; /^\[/!d }' scripts/rules_config.conf
 RUN echo "#!/bin/sh" > /etc/periodic/daily/update_rules.sh && \
     echo "cd / && python3 scripts/update_rules.py -c scripts/rules_config.conf" >> /etc/periodic/daily/update_rules.sh && \
     chmod +x /etc/periodic/daily/update_rules.sh
