@@ -56,10 +56,15 @@ COPY --from=builder /subconverter/scripts/rules_config.conf /scripts/rules_confi
 COPY --from=builder /subconverter/scripts/update_rules.py /scripts/update_rules.py
 
 ENV TZ=Africa/Abidjan
-RUN sed -i '/\[ACL4SSR_config\]/,/^\[.*\]$/d' /scripts/rules_config.conf
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 RUN echo $TZ > /etc/timezone
+
 RUN python3 -m ensurepip && python3 -m pip install gitpython
+
+RUN sed -i '/^\[ACL4SSR_config\]$/,/^\[/ { /^\[/!d }' scripts/rules_config.conf
+RUN echo "#!/bin/sh" > /etc/periodic/daily/update_rules.sh && \
+    echo "cd / && python3 scripts/update_rules.py -c scripts/rules_config.conf" >> /etc/periodic/daily/update_rules.sh && \
+    chmod +x /etc/periodic/daily/update_rules.sh
 
 # set entry
 WORKDIR /base
