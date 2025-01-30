@@ -38,6 +38,7 @@ RUN set -xe && \
     git clone https://github.com/tindy2013/subconverter --depth=1 && \
     cd subconverter && \
     [ -n "$SHA" ] && sed -i 's/\(v[0-9]\.[0-9]\.[0-9]\)/\1-'"$SHA"'/' src/version.h;\
+    sed -i '/TW/s/🇨🇳/🇹🇼/g' base/snippets/emoji.txt && \
     python3 -m ensurepip && \
     python3 -m pip install gitpython && \
     python3 scripts/update_rules.py -c scripts/rules_config.conf && \
@@ -59,6 +60,8 @@ ENV TZ=Africa/Abidjan
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 RUN echo $TZ > /etc/timezone
 
+RUN mkdir -p /var/spool/cron/
+
 RUN python3 -m ensurepip && python3 -m pip install gitpython
 
 RUN sed -i '/^\[ACL4SSR_config\]$/,/^\[/ { /^\[ACL4SSR_config\]$/d; /^\[/!d }' scripts/rules_config.conf
@@ -68,6 +71,6 @@ RUN echo "#!/bin/sh" > /etc/periodic/daily/update_rules.sh && \
 
 # set entry
 WORKDIR /base
-CMD crond -b && subconverter
+CMD crond -L /var/log/cron.log && tail -f /var/log/cron.log && subconverter
 
 EXPOSE 25500/tcp
